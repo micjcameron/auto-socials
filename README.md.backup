@@ -1,0 +1,100 @@
+# Auto-Socials: Automated Viral Video Generation System
+
+## 🚀 Overview
+
+An automated system that scrapes product ideas, generates affiliate links, creates viral videos, and distributes content to social platforms.
+
+## 📁 Project Structure
+
+```
+auto-socials/
+├── n8n/                    # n8n automation workflows
+│   └── docker-compose.yaml # n8n Docker setup
+├── src/                    # Custom application source code
+│   ├── scrapers/          # Data mining modules
+│   ├── generators/        # Content generation modules
+│   └── distributors/      # Social media posting modules
+├── db/                    # Database files and migrations
+├── config/               # Configuration files
+└── README.md
+```
+
+## 🔧 System Components
+
+### 1. Data Mining (Daily Scrapers)
+- **Whop Scraper**: Finds trending products and opportunities
+- **Clickbank Scraper**: Discovers affiliate products
+- **Generic Scraper Interface**: Extensible for other platforms
+
+### 2. Content Generation Pipeline
+- **Idea Processing**: Converts scraped data into video concepts
+- **GPT Integration**: Generates scripts and captions
+- **ElevenLabs**: Text-to-speech for voiceovers
+- **FFmpeg**: Video editing and compilation
+- **Remotion**: AI-generated motion graphics
+
+### 3. Distribution System
+- **Telegram Bot**: Automated posting
+- **Multi-platform Support**: TikTok, Instagram, YouTube, etc.
+
+## 💰 Monetization Strategy
+
+### Affiliate Marketing Setup
+1. **Whop**: Register as creator/affiliate
+2. **Clickbank**: Create affiliate account
+3. **Other Platforms**: Platform-specific registration
+4. **Commission Tracking**: Monitor conversions and earnings
+
+### Revenue Streams
+- Affiliate commissions (5-50% per sale)
+- Platform monetization (YouTube ads, TikTok creator fund)
+- Sponsored content opportunities
+
+## 🎯 Video Styles Available
+
+1. **Static Image + Captions + Voice**: Simple, effective
+2. **AI-Generated Background**: Dynamic visuals
+3. **Meme-Style Motion (Remotion)**: Trending format
+4. **Custom Templates**: Branded content
+
+## 🚀 Quick Start
+
+1. **Start n8n**: `cd n8n && docker-compose up -d`
+2. **Configure Scrapers**: Set up API keys and credentials
+3. **Test Workflow**: Run sample video generation
+4. **Scale Up**: Increase daily output volume
+
+## 📊 Daily Workflow
+
+1. **Morning**: Scrapers find new product opportunities
+2. **Processing**: AI generates video concepts and scripts
+3. **Creation**: Automated video generation pipeline
+4. **Distribution**: Scheduled posting across platforms
+5. **Analytics**: Track performance and optimize
+
+## 🔄 Continuous Improvement
+
+- **A/B Testing**: Different video styles and formats
+- **Audience Building**: Organic content to grow following
+- **Strategic Affiliate Drops**: Monetize engaged audience
+- **Performance Optimization**: Data-driven improvements
+
+## 🛠️ Technical Stack
+
+- **Automation**: n8n workflows
+- **AI**: GPT-4, ElevenLabs, Remotion
+- **Video**: FFmpeg, custom templates
+- **Database**: SQLite/PostgreSQL for data persistence
+- **Deployment**: Docker containers
+
+## 📈 Growth Strategy
+
+1. **Phase 1**: Build automated pipeline
+2. **Phase 2**: Scale content production
+3. **Phase 3**: Build audience with organic content
+4. **Phase 4**: Strategic affiliate monetization
+5. **Phase 5**: Platform expansion and optimization
+
+---
+
+*Ready to build your viral video empire? Let's get started! 🎬* 

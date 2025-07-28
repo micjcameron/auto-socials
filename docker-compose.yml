@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # n8n Automation Platform (sourced from n8n directory)
+  # n8n:
+  #   extends:
+  #     file: ./n8n/docker-compose.yaml
+  #     service: n8n
+  #   networks:
+  #     - auto-socials-network
+  #   depends_on: 
+  #     - postgres
+
+  # Main Auto-Socials Application - REMOVED (will run locally)
+  # auto-socials:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - PORT=3000
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #     - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+  #     - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+  #     - WHOP_API_KEY=${WHOP_API_KEY}
+  #     - CLICKBANK_API_KEY=${CLICKBANK_API_KEY}
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_USERNAME=auto_socials
+  #     - DB_PASSWORD=auto_socials_password
+  #     - DB_DATABASE=auto_socials
+  #     - REDIS_URL=redis://redis:6379
+  #   volumes:
+  #     - ./src:/app/src
+  #     - ./db:/app/db
+  #     - ./config:/app/config
+  #     - ./output:/app/output
+  #     - ./temp:/app/temp
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_started
+  #     n8n:
+  #       condition: service_started
+  #   networks:
+  #     - auto-socials-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=auto_socials
+      - POSTGRES_USER=auto_socials
+      - POSTGRES_PASSWORD=auto_socials_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auto-socials-network
+
+  # Redis for caching and job queues (optional)
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - auto-socials-network
+
+  # FFmpeg service for video processing
+  ffmpeg:
+    image: jrottenberg/ffmpeg:latest
+    restart: always
+    volumes:
+      - ./temp:/temp
+      - ./output:/output
+    networks:
+      - auto-socials-network
+
+networks:
+  auto-socials-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data: 
