@@ -11,6 +11,8 @@ export interface WhopProduct {
   url: string;
   trending_score: number;
   commission_rate: number;
+  images?: string[]; // Product images
+  thumbnail?: string; // Main product image
 }
 
 export interface WhopApiResponse {
@@ -47,6 +49,8 @@ export class WhopApiService extends BaseApiService {
         url: `https://whop.com/products/${product.id}`,
         trending_score: product.trending_score,
         commission_rate: product.commission_rate,
+        images: product.images || [],
+        thumbnail: product.thumbnail || product.images?.[0] || null,
       }));
     } catch (error) {
       this.logger.error('Failed to fetch trending products from Whop:', error);
@@ -67,12 +71,11 @@ export class WhopApiService extends BaseApiService {
         url: `https://whop.com/products/${product.id}`,
         trending_score: product.trending_score,
         commission_rate: product.commission_rate,
+        images: product.images || [],
+        thumbnail: product.thumbnail || product.images?.[0] || null,
       };
     } catch (error) {
-      this.logger.error(
-        `Failed to fetch product ${productId} from Whop:`,
-        error
-      );
+      this.logger.error(`Failed to fetch product ${productId} from Whop:`, error);
       throw error;
     }
   }
@@ -80,24 +83,16 @@ export class WhopApiService extends BaseApiService {
   async getAffiliateLink(productId: string): Promise<string> {
     try {
       // This would depend on Whop's affiliate API structure
-      const response = await this.post<{ affiliate_url: string }>(
-        `/products/${productId}/affiliate-link`
-      );
+      const response = await this.post<{ affiliate_url: string }>(`/products/${productId}/affiliate-link`);
       return response.affiliate_url;
     } catch (error) {
-      this.logger.error(
-        `Failed to get affiliate link for product ${productId}:`,
-        error
-      );
+      this.logger.error(`Failed to get affiliate link for product ${productId}:`, error);
       // Fallback to regular product URL
       return `https://whop.com/products/${productId}`;
     }
   }
 
-  async searchProducts(
-    query: string,
-    category?: string
-  ): Promise<WhopProduct[]> {
+  async searchProducts(query: string, category?: string): Promise<WhopProduct[]> {
     try {
       const params: any = { q: query };
       if (category) params.category = category;
@@ -115,6 +110,8 @@ export class WhopApiService extends BaseApiService {
         url: `https://whop.com/products/${product.id}`,
         trending_score: product.trending_score,
         commission_rate: product.commission_rate,
+        images: product.images || [],
+        thumbnail: product.thumbnail || product.images?.[0] || null,
       }));
     } catch (error) {
       this.logger.error('Failed to search products on Whop:', error);

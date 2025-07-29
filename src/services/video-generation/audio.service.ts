@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ElevenLabsService } from '../generators/elevenlabs.service';
 
 @Injectable()
@@ -8,7 +7,6 @@ export class AudioService {
 
   constructor(
     private elevenLabsService: ElevenLabsService,
-    private configService: ConfigService
   ) {}
 
   async generateAudio(script: string): Promise<string> {
@@ -25,10 +23,7 @@ export class AudioService {
     }
   }
 
-  addBackgroundMusic(
-    audioPath: string,
-    musicStyle: string = 'upbeat'
-  ): Promise<string> {
+  addBackgroundMusic(audioPath: string, musicStyle: string = 'upbeat'): Promise<string> {
     try {
       this.logger.log(`🎵 Adding background music (${musicStyle})`);
 
@@ -43,10 +38,7 @@ export class AudioService {
     }
   }
 
-  async generateAudioWithMusic(
-    script: string,
-    musicStyle: string = 'upbeat'
-  ): Promise<string> {
+  async generateAudioWithMusic(script: string, musicStyle: string = 'upbeat'): Promise<string> {
     try {
       this.logger.log('🎵 Generating audio with background music');
 
@@ -54,10 +46,7 @@ export class AudioService {
       const voicePath = await this.generateAudio(script);
 
       // 2. Add background music
-      const finalAudioPath = await this.addBackgroundMusic(
-        voicePath,
-        musicStyle
-      );
+      const finalAudioPath = await this.addBackgroundMusic(voicePath, musicStyle);
 
       this.logger.log(`✅ Audio with music generated: ${finalAudioPath}`);
       return finalAudioPath;
@@ -78,13 +67,6 @@ export class AudioService {
   }
 
   getAvailableMusicStyles(): Promise<string[]> {
-    return Promise.resolve([
-      'upbeat',
-      'calm',
-      'dramatic',
-      'electronic',
-      'acoustic',
-      'cinematic',
-    ]);
+    return Promise.resolve(['upbeat', 'calm', 'dramatic', 'electronic', 'acoustic', 'cinematic']);
   }
 }

@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Opportunity } from './opportunity.entity';
 import { Post } from './post.entity';
 
@@ -39,10 +32,7 @@ export class AffiliateEarnings {
   recordedAt: Date;
 
   // Relationships
-  @ManyToOne(
-    () => Opportunity,
-    (opportunity: Opportunity) => opportunity.affiliateEarnings
-  )
+  @ManyToOne(() => Opportunity, (opportunity: Opportunity) => opportunity.affiliateEarnings)
   @JoinColumn({ name: 'opportunityId' })
   opportunity: Opportunity;
 

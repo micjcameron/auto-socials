@@ -54,10 +54,7 @@ export class Video {
   updatedAt: Date;
 
   // Relationships
-  @ManyToOne(
-    () => Opportunity,
-    (opportunity: Opportunity) => opportunity.videos
-  )
+  @ManyToOne(() => Opportunity, (opportunity: Opportunity) => opportunity.videos)
   @JoinColumn({ name: 'opportunityId' })
   opportunity: Opportunity;
 

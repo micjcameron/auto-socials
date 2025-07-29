@@ -23,18 +23,13 @@ export class TikTokApiService extends BaseApiService {
 
   constructor(configService: ConfigService) {
     super(configService, 'https://api.tiktok.com/v1', {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     });
 
     this.sessionToken = configService.get<string>('TIKTOK_SESSION_TOKEN');
   }
 
-  async uploadVideo(
-    videoPath: string,
-    caption: string,
-    hashtags: string[] = []
-  ): Promise<TikTokPostResponse> {
+  async uploadVideo(videoPath: string, caption: string, hashtags: string[] = []): Promise<TikTokPostResponse> {
     try {
       this.logger.log('Uploading video to TikTok...');
 
@@ -43,29 +38,19 @@ export class TikTokApiService extends BaseApiService {
 
       // Create form data
       const formData = new FormData();
-      formData.append(
-        'video',
-        new Blob([videoBuffer], { type: 'video/mp4' }),
-        'video.mp4'
-      );
+      formData.append('video', new Blob([videoBuffer], { type: 'video/mp4' }), 'video.mp4');
       formData.append('caption', caption);
       formData.append('hashtags', hashtags.join(' '));
       formData.append('privacy', 'public');
 
-      const response = await this.upload<TikTokPostResponse>(
-        '/video/upload',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${this.sessionToken}`,
-          },
-        }
-      );
+      const response = await this.upload<TikTokPostResponse>('/video/upload', formData, {
+        headers: {
+          Authorization: `Bearer ${this.sessionToken}`,
+        },
+      });
 
       if (response.success) {
-        this.logger.log(
-          `Video uploaded successfully to TikTok: ${response.post_id}`
-        );
+        this.logger.log(`Video uploaded successfully to TikTok: ${response.post_id}`);
       } else {
         this.logger.error(`TikTok upload failed: ${response.error}`);
       }
@@ -79,14 +64,11 @@ export class TikTokApiService extends BaseApiService {
 
   async getVideoInfo(postId: string): Promise<TikTokVideoInfo> {
     try {
-      const response = await this.get<TikTokVideoInfo>(
-        `/video/${postId}/info`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.sessionToken}`,
-          },
-        }
-      );
+      const response = await this.get<TikTokVideoInfo>(`/video/${postId}/info`, {
+        headers: {
+          Authorization: `Bearer ${this.sessionToken}`,
+        },
+      });
 
       return response;
     } catch (error) {
@@ -113,9 +95,7 @@ export class TikTokApiService extends BaseApiService {
 
   async getTrendingHashtags(): Promise<string[]> {
     try {
-      const response = await this.get<{ hashtags: string[] }>(
-        '/trending/hashtags'
-      );
+      const response = await this.get<{ hashtags: string[] }>('/trending/hashtags');
       return response.hashtags;
     } catch (error) {
       this.logger.error('Failed to get trending hashtags:', error);

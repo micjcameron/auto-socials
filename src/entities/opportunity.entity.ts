@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Video } from './video.entity';
 import { AffiliateEarnings } from './affiliate-earnings.entity';
 
@@ -41,11 +34,26 @@ export class Opportunity {
   @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true })
   trendingScore: number;
 
+  @Column({ type: 'json', nullable: true })
+  images: string[]; // Array of product image URLs
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  thumbnail: string; // Main product image URL
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  paymentFrequency: string; // e.g. 'once', 'monthly', 'yearly'
+
+  @Column({ type: 'boolean', default: false })
+  isAffiliate: boolean;
+
   @Column({
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   scrapedAt: Date;
+
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  lastUsedAt: Date;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
   createdAt: Date;
@@ -57,9 +65,6 @@ export class Opportunity {
   @OneToMany(() => Video, (video: Video) => video.opportunity)
   videos: Video[];
 
-  @OneToMany(
-    () => AffiliateEarnings,
-    (earnings: AffiliateEarnings) => earnings.opportunity
-  )
+  @OneToMany(() => AffiliateEarnings, (earnings: AffiliateEarnings) => earnings.opportunity)
   affiliateEarnings: AffiliateEarnings[];
 }

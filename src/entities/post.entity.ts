@@ -56,9 +56,6 @@ export class Post {
   @OneToMany(() => Analytics, (analytics: Analytics) => analytics.post)
   analytics: Analytics[];
 
-  @OneToMany(
-    () => AffiliateEarnings,
-    (earnings: AffiliateEarnings) => earnings.post
-  )
+  @OneToMany(() => AffiliateEarnings, (earnings: AffiliateEarnings) => earnings.post)
   affiliateEarnings: AffiliateEarnings[];
 }

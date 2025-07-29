@@ -1,17 +1,14 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, Req } from '@nestjs/common';
 import { AppService } from './app.service';
-import { OpportunityScraperService } from './services/opportunities/opportunity-scraper.service';
 import { OpportunitiesService } from './services/opportunities/opportunities.service';
-import { VideoGenerationService } from './services/video-generation/video-generation.service';
 import { SchedulerService } from './services/scheduler.service';
+import { CreateOpportunityDto, UpdateOpportunityDto } from './dtos/opportunity.dto';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly opportunityScraper: OpportunityScraperService,
     private readonly opportunitiesService: OpportunitiesService,
-    private readonly videoGenerationService: VideoGenerationService,
     private readonly schedulerService: SchedulerService
   ) {}
 
@@ -29,102 +26,50 @@ export class AppController {
     };
   }
 
-  @Post('test/scrape')
-  async testScrape() {
-    try {
-      const opportunities =
-        await this.opportunityScraper.scrapeAllOpportunities();
-      return {
-        success: true,
-        message: `Scraped ${opportunities.length} opportunities`,
-        opportunities: opportunities.length,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
+  // --- ADMIN OPPORTUNITY ENDPOINTS ---
+  @Get('admin/opportunities')
+  async listOpportunities(@Query('limit') limit?: number) {
+    return this.opportunitiesService.getAllOpportunities(limit ? Number(limit) : 50);
   }
 
-  @Post('test/n8n')
-  testN8n() {
-    try {
-      console.log('test n8n');
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
+  @Get('admin/opportunities/:id')
+  async getOpportunity(@Param('id') id: string) {
+    return this.opportunitiesService.getOpportunityById(id);
   }
 
-  @Post('test/generate')
-  async testGenerate() {
-    try {
-      const videos = await this.videoGenerationService.generateDailyVideos(1);
-      return {
-        success: true,
-        message: `Generated ${videos.length} videos`,
-        videos: videos.length,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
+  @Post('admin/opportunities')
+  async createOpportunity(@Body() dto: CreateOpportunityDto, @Req() req) {
+    console.log('Raw body:', req.body);
+    console.log('DTO:', dto);
+    return this.opportunitiesService.createOpportunity(dto);
   }
 
-  @Post('test/generate/:opportunityId')
-  async testGenerateFromOpportunity(
-    @Param('opportunityId') opportunityId: string
+  @Put('admin/opportunities/:id')
+  async updateOpportunity(
+    @Param('id') id: string,
+    @Body() dto: UpdateOpportunityDto,
   ) {
-    return this.opportunitiesService.generateVideoFromOpportunity(
-      opportunityId
-    );
+    return this.opportunitiesService.updateOpportunity(id, dto);
   }
 
-  @Post('test/generate-script/:opportunityId')
-  async testGenerateScript(@Param('opportunityId') opportunityId: string) {
-    return this.opportunitiesService.generateScriptFromOpportunity(
-      opportunityId
-    );
+  @Delete('admin/opportunities/:id')
+  async deleteOpportunity(@Param('id') id: string) {
+    return this.opportunitiesService.deleteOpportunity(id);
   }
 
-  @Get('test/opportunities')
-  async getOpportunities() {
-    return this.opportunitiesService.getAllOpportunities(10);
-  }
-
-  // Scheduler endpoints
   @Get('scheduler/config')
   getScheduleConfig() {
     return this.schedulerService.getScheduleConfig();
   }
 
-  @Post('scheduler/trigger/tiktok')
-  async triggerTikTok() {
-    return this.schedulerService.triggerTikTokPost();
-  }
-
-  @Post('scheduler/trigger/instagram')
-  async triggerInstagram() {
-    return this.schedulerService.triggerInstagramPost();
-  }
-
-  @Post('scheduler/trigger/youtube')
-  async triggerYouTube() {
-    return this.schedulerService.triggerYouTubePost();
-  }
-
-  @Post('scheduler/trigger/telegram')
-  async triggerTelegram() {
-    return this.schedulerService.triggerTelegramPost();
-  }
-
-  @Post('scheduler/trigger/twitter')
-  async triggerTwitter() {
-    return this.schedulerService.triggerTwitterPost();
+  @Post('scheduler/manual-generate')
+  async manualGenerate(@Body() body: { platform: string; count?: number; isAffiliate: boolean }) {
+    try {
+      const { platform, count = 1, isAffiliate } = body;
+      await this.schedulerService['compositionService'].generateAndPost(platform, count, isAffiliate);
+      return { success: true, message: `Triggered generateAndPost for ${platform} (${isAffiliate ? 'affiliate' : 'organic'}) x${count}` };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 }

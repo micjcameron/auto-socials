@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OpportunitiesRepository } from '../../repositories/opportunities.repository';
-import { VideoGenerationService } from '../video-generation/video-generation.service';
+import { Opportunity } from '../../entities/opportunity.entity';
+import { DeepPartial } from 'typeorm';
+import { plainToInstance } from 'class-transformer';
+import { OpportunityResponseDto } from '../../dtos/opportunity.dto';
+import { OpenAIService } from '../generators/openai.service';
+import { ScriptService } from '../video-generation/script.service';
 
 @Injectable()
 export class OpportunitiesService {
@@ -8,37 +13,48 @@ export class OpportunitiesService {
 
   constructor(
     private opportunitiesRepository: OpportunitiesRepository,
-    private videoGenerationService: VideoGenerationService
+    private openaiService: OpenAIService,
+    private scriptService: ScriptService,
   ) {}
 
-  async getAllOpportunities(limit: number = 10) {
+  async getAllOpportunities(limit: number = 10): Promise<OpportunityResponseDto[]> {
     try {
       const opportunities = await this.opportunitiesRepository.findAll(limit);
-      return {
-        success: true,
-        message: `Found ${opportunities.length} opportunities`,
-        opportunities: opportunities.map(opp => ({
-          id: opp.id,
-          productName: opp.productName,
-          platform: opp.platform,
-          commissionRate: opp.commissionRate,
-          price: opp.price,
-          category: opp.category,
-        })),
-      };
+      return plainToInstance(OpportunityResponseDto, opportunities, {
+        excludeExtraneousValues: true,
+      });
     } catch (error) {
       this.logger.error('Failed to get opportunities:', error);
-      return {
-        success: false,
-        error: error.message,
-      };
+      throw error;
     }
+  }
+
+  async getOpportunityById(id: string): Promise<Opportunity | null> {
+    return this.opportunitiesRepository.findById(id);
+  }
+
+  async createOpportunity(data: DeepPartial<Opportunity>): Promise<Opportunity> {
+    if (!Array.isArray(data.images)) data.images = [];
+    const opportunity = this.opportunitiesRepository.create(data);
+    return this.opportunitiesRepository.save(opportunity);
+  }
+
+  async updateOpportunity(id: string, data: DeepPartial<Opportunity>): Promise<Opportunity | null> {
+    const opportunity = await this.opportunitiesRepository.findById(id);
+    if (!opportunity) return null;
+    if (!Array.isArray(data.images)) data.images = [];
+    Object.assign(opportunity, data);
+    return this.opportunitiesRepository.save(opportunity);
+  }
+
+  async deleteOpportunity(id: string): Promise<{ deleted: boolean }> {
+    const result = await this.opportunitiesRepository.delete(id);
+    return { deleted: !!result.affected };
   }
 
   async generateScriptFromOpportunity(opportunityId: string) {
     try {
-      const opportunity =
-        await this.opportunitiesRepository.findById(opportunityId);
+      const opportunity = await this.opportunitiesRepository.findById(opportunityId);
 
       if (!opportunity) {
         return {
@@ -48,11 +64,7 @@ export class OpportunitiesService {
       }
 
       // Generate script using OpenAI
-      const script =
-        await this.videoGenerationService.generateVideoFromOpportunity(
-          opportunityId,
-          'static'
-        );
+      const script = await this.scriptService.generateScript(opportunity, 'static', false);
 
       return {
         success: true,
@@ -73,27 +85,35 @@ export class OpportunitiesService {
     }
   }
 
-  async generateVideoFromOpportunity(opportunityId: string) {
-    try {
-      const video =
-        await this.videoGenerationService.generateVideoFromOpportunity(
-          opportunityId
-        );
-      return {
-        success: true,
-        message: 'Video generated successfully',
-        video: {
-          id: video.id,
-          title: video.title,
-          status: video.status,
-        },
-      };
-    } catch (error) {
-      this.logger.error('Failed to generate video:', error);
-      return {
-        success: false,
-        error: error.message,
-      };
+  async markOpportunityAsUsed(opportunityId: string) {
+    const opportunity = await this.opportunitiesRepository.findById(opportunityId);
+    if (opportunity) {
+      opportunity.lastUsedAt = new Date();
+      await this.opportunitiesRepository.save(opportunity);
     }
+  }
+
+  async getRandomAffiliateOpportunity(): Promise<Opportunity | null> {
+    return this.opportunitiesRepository.getRandomAffiliateOpportunity();
+  }
+
+  async getRandomOrganicOpportunity(): Promise<Opportunity | null> {
+    return this.opportunitiesRepository.getRandomOrganicOpportunity();
+  }
+
+  async generateOrganicIdeas(title: string, description: string): Promise<Opportunity[]> {
+    this.logger.log(`🤖 Generating organic ideas for: ${title}`);
+    const prompt = `Generate 5 unique, organic, non-affiliate video ideas (titles only) related to the following product. Do NOT mention the product name or affiliate links.\nProduct Title: ${title}\nProduct Description: ${description}`;
+    const ideas = await this.openaiService.generateOrganicIdeas(prompt);
+    const created: Opportunity[] = [];
+    for (const idea of ideas) {
+      const organic = this.opportunitiesRepository.create({
+        productName: idea,
+        description: '',
+        isAffiliate: false,
+      });
+      created.push(await this.opportunitiesRepository.save(organic));
+    }
+    return created;
   }
 }

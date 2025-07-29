@@ -49,19 +49,14 @@ export class ClickBankApiService extends BaseApiService {
         url: `https://hop.clickbank.net/?affiliate=YOUR_ID&item=${product.id}`,
       }));
     } catch (error) {
-      this.logger.error(
-        'Failed to fetch popular products from ClickBank:',
-        error
-      );
+      this.logger.error('Failed to fetch popular products from ClickBank:', error);
       throw error;
     }
   }
 
   async getProductById(productId: string): Promise<ClickBankProduct> {
     try {
-      const product = await this.get<ClickBankProduct>(
-        `/products/${productId}`
-      );
+      const product = await this.get<ClickBankProduct>(`/products/${productId}`);
 
       return {
         id: product.id,
@@ -74,26 +69,17 @@ export class ClickBankApiService extends BaseApiService {
         url: `https://hop.clickbank.net/?affiliate=YOUR_ID&item=${product.id}`,
       };
     } catch (error) {
-      this.logger.error(
-        `Failed to fetch product ${productId} from ClickBank:`,
-        error
-      );
+      this.logger.error(`Failed to fetch product ${productId} from ClickBank:`, error);
       throw error;
     }
   }
 
-  async searchProducts(
-    query: string,
-    category?: string
-  ): Promise<ClickBankProduct[]> {
+  async searchProducts(query: string, category?: string): Promise<ClickBankProduct[]> {
     try {
       const params: any = { q: query };
       if (category) params.category = category;
 
-      const response = await this.get<ClickBankApiResponse>(
-        '/products/search',
-        { params }
-      );
+      const response = await this.get<ClickBankApiResponse>('/products/search', { params });
 
       return response.products.map(product => ({
         id: product.id,

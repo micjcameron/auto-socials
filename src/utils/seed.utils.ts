@@ -24,9 +24,7 @@ async function seedOpportunities(dataSource: DataSource) {
   // Check if opportunities already exist
   const existingCount = await opportunityRepository.count();
   if (existingCount > 0) {
-    logger.log(
-      `⚠️  ${existingCount} opportunities already exist, skipping seeding`
-    );
+    logger.log(`⚠️  ${existingCount} opportunities already exist, skipping seeding`);
     return;
   }
 
@@ -39,8 +37,7 @@ async function seedOpportunities(dataSource: DataSource) {
       commissionRate: 75.0,
       price: 49.99,
       category: 'health',
-      description:
-        'Revolutionary weight loss supplement that helps you lose 10 pounds in 30 days!',
+      description: 'Revolutionary weight loss supplement that helps you lose 10 pounds in 30 days!',
       trendingScore: 0.95,
     },
     {
@@ -51,8 +48,7 @@ async function seedOpportunities(dataSource: DataSource) {
       commissionRate: 50.0,
       price: 29.99,
       category: 'software',
-      description:
-        'Create viral content in seconds with our AI-powered content generator!',
+      description: 'Create viral content in seconds with our AI-powered content generator!',
       trendingScore: 0.88,
     },
     {
@@ -63,8 +59,7 @@ async function seedOpportunities(dataSource: DataSource) {
       commissionRate: 60.0,
       price: 199.99,
       category: 'finance',
-      description:
-        'Learn how to make $1000+ daily with cryptocurrency trading strategies!',
+      description: 'Learn how to make $1000+ daily with cryptocurrency trading strategies!',
       trendingScore: 0.92,
     },
     {
@@ -75,8 +70,7 @@ async function seedOpportunities(dataSource: DataSource) {
       commissionRate: 40.0,
       price: 79.99,
       category: 'marketing',
-      description:
-        'Grow your social media following from 0 to 100k in 90 days!',
+      description: 'Grow your social media following from 0 to 100k in 90 days!',
       trendingScore: 0.87,
     },
     {
@@ -87,8 +81,7 @@ async function seedOpportunities(dataSource: DataSource) {
       commissionRate: 80.0,
       price: 299.99,
       category: 'education',
-      description:
-        'Become a certified relationship coach and help couples save their marriages!',
+      description: 'Become a certified relationship coach and help couples save their marriages!',
       trendingScore: 0.89,
     },
   ];

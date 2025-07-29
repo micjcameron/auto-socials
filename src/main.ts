@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DataSource } from 'typeorm';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import * as bodyParser from 'body-parser';
+import { AllExceptionsFilter } from './utils/filters/http-exception.filter';
 
 async function initializeDatabase(dataSource: DataSource) {
   const logger = new Logger('Database');
@@ -36,6 +37,9 @@ async function bootstrap() {
       transform: true,
     })
   );
+
+  // Register global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Enable CORS
   // app.enableCors({

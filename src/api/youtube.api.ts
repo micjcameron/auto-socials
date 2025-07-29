@@ -45,32 +45,22 @@ export class YouTubeApiService extends BaseApiService {
 
       // Create form data for YouTube API
       const formData = new FormData();
-      formData.append(
-        'video',
-        new Blob([videoBuffer], { type: 'video/mp4' }),
-        'short.mp4'
-      );
+      formData.append('video', new Blob([videoBuffer], { type: 'video/mp4' }), 'short.mp4');
       formData.append('title', title);
       formData.append('description', description);
       formData.append('tags', tags.join(','));
       formData.append('categoryId', '22'); // People & Blogs
       formData.append('privacyStatus', 'public');
 
-      const response = await this.upload<YouTubeUploadResponse>(
-        '/videos',
-        formData,
-        {
-          params: {
-            part: 'snippet,status',
-            key: this.apiKey,
-          },
-        }
-      );
+      const response = await this.upload<YouTubeUploadResponse>('/videos', formData, {
+        params: {
+          part: 'snippet,status',
+          key: this.apiKey,
+        },
+      });
 
       if (response.success) {
-        this.logger.log(
-          `Short uploaded successfully to YouTube: ${response.video_id}`
-        );
+        this.logger.log(`Short uploaded successfully to YouTube: ${response.video_id}`);
       } else {
         this.logger.error(`YouTube upload failed: ${response.error}`);
       }
@@ -165,12 +155,7 @@ export class YouTubeApiService extends BaseApiService {
     }
   }
 
-  async updateVideoMetadata(
-    videoId: string,
-    title?: string,
-    description?: string,
-    tags?: string[]
-  ): Promise<boolean> {
+  async updateVideoMetadata(videoId: string, title?: string, description?: string, tags?: string[]): Promise<boolean> {
     try {
       const updateData: any = {
         id: videoId,

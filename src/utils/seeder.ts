@@ -27,8 +27,7 @@ async function runSeeder() {
     console.log('ℹ️ Database Connection:', AppDataSource.options);
 
     // Check for V2 flag
-    const useV2 =
-      process.argv.includes('--v2') || process.env.SEED_VERSION === 'v2';
+    const useV2 = process.argv.includes('--v2') || process.env.SEED_VERSION === 'v2';
     if (useV2) {
       console.log('🚀 Using V2 seeding with enhanced questions and sessions');
     }

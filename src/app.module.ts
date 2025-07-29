@@ -23,18 +23,19 @@ import { OpportunitiesService } from './services/opportunities/opportunities.ser
 import { SchedulerService } from './services/scheduler.service';
 
 // Video Generation Services
-import { VideoGenerationService } from './services/video-generation/video-generation.service';
 import { ScriptService } from './services/video-generation/script.service';
 import { AudioService } from './services/video-generation/audio.service';
 import { VisualService } from './services/video-generation/visual.service';
-import { CompositionService } from './services/video-generation/composition.service';
-
+import { CompositionService } from './services/composition.service';
+import { VideoService } from './services/video-generation/video.service';
+ 
 // Generators
 import { OpenAIService } from './services/generators/openai.service';
 import { ElevenLabsService } from './services/generators/elevenlabs.service';
 
 // Scrapers
 import { OpportunityScraperService } from './services/opportunities/opportunity-scraper.service';
+import { WebScraperService } from './services/opportunities/web-scraper.service';
 
 // API Services
 import { WhopApiService } from './api/whop.api';
@@ -49,13 +50,7 @@ import { YouTubeApiService } from './api/youtube.api';
       envFilePath: '.env',
     }),
     TypeOrmModule.forRoot(getTypeOrmConfig()),
-    TypeOrmModule.forFeature([
-      Opportunity,
-      Video,
-      Post,
-      Analytics,
-      AffiliateEarnings,
-    ]),
+    TypeOrmModule.forFeature([Opportunity, Video, Post, Analytics, AffiliateEarnings]),
     ScheduleModule.forRoot(),
     HttpModule,
   ],
@@ -68,7 +63,7 @@ import { YouTubeApiService } from './api/youtube.api';
     SchedulerService,
 
     // Video Generation Services
-    VideoGenerationService,
+    VideoService,
     ScriptService,
     AudioService,
     VisualService,
@@ -80,6 +75,7 @@ import { YouTubeApiService } from './api/youtube.api';
 
     // Scrapers
     OpportunityScraperService,
+    WebScraperService,
 
     // API Services
     WhopApiService,

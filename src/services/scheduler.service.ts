@@ -1,153 +1,146 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { OpportunitiesService } from './opportunities/opportunities.service';
+import { CompositionService } from './composition.service';
+import { SCHEDULES } from '../config/schedule.constants';
 
 @Injectable()
 export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
 
-  constructor(private opportunitiesService: OpportunitiesService) {}
+  constructor(private compositionService: CompositionService) {}
 
-  // TikTok Schedule - 3 videos per day
-  @Cron('0 9,14,19 * * *') // 9 AM, 2 PM, 7 PM
-  async postToTikTok() {
-    this.logger.log('🕐 TikTok posting scheduled');
-    await this.generateAndPost('tiktok', 1);
+  // TikTok Affiliate - once a day at 6pm
+  @Cron(SCHEDULES.tiktok.affiliate)
+  async postTikTokAffiliate() {
+    this.logger.log('🕕 TikTok affiliate posting scheduled');
+    await this.compositionService.generateAndPost('tiktok', 1, true);
   }
 
-  // Instagram Schedule - 2 videos per day
-  @Cron('0 10,17 * * *') // 10 AM, 5 PM
-  async postToInstagram() {
-    this.logger.log('🕐 Instagram posting scheduled');
-    await this.generateAndPost('instagram', 1);
+  // TikTok Non-Affiliate - 4 times a day at 7am, 12pm, 5pm, 9pm
+  @Cron(SCHEDULES.tiktok.nonAffiliate)
+  async postTikTokOrganic() {
+    this.logger.log('🕖 TikTok organic posting scheduled');
+    await this.compositionService.generateAndPost('tiktok', 1, false);
   }
 
-  // YouTube Schedule - 1 video per day
-  @Cron('0 15 * * *') // 3 PM
-  async postToYouTube() {
-    this.logger.log('🕐 YouTube posting scheduled');
-    await this.generateAndPost('youtube', 1);
+  // Instagram Affiliate - once a day at 6pm
+  @Cron(SCHEDULES.instagram.affiliate)
+  async postInstagramAffiliate() {
+    this.logger.log('🕕 Instagram affiliate posting scheduled');
+    await this.compositionService.generateAndPost('instagram', 1, true);
   }
 
-  // Telegram Schedule - 4 videos per day
-  @Cron('0 8,12,16,20 * * *') // 8 AM, 12 PM, 4 PM, 8 PM
-  async postToTelegram() {
-    this.logger.log('🕐 Telegram posting scheduled');
-    await this.generateAndPost('telegram', 1);
+  // Instagram Non-Affiliate - 4 times a day
+  @Cron(SCHEDULES.instagram.nonAffiliate)
+  async postInstagramOrganic() {
+    this.logger.log('🕖 Instagram organic posting scheduled');
+    await this.compositionService.generateAndPost('instagram', 1, false);
   }
 
-  // Twitter/X Schedule - 3 videos per day
-  @Cron('0 11,15,18 * * *') // 11 AM, 3 PM, 6 PM
-  async postToTwitter() {
-    this.logger.log('🕐 Twitter posting scheduled');
-    await this.generateAndPost('twitter', 1);
+  // YouTube Affiliate - once a day at 6pm
+  @Cron(SCHEDULES.youtube.affiliate)
+  async postYouTubeAffiliate() {
+    this.logger.log('🕕 YouTube affiliate posting scheduled');
+    await this.compositionService.generateAndPost('youtube', 1, true);
   }
 
-  // Manual override methods for testing
-  async generateAndPost(platform: string, count: number = 1) {
-    try {
-      this.logger.log(`🎬 Generating ${count} video(s) for ${platform}`);
-
-      // Get opportunities for video generation
-      const response =
-        await this.opportunitiesService.getAllOpportunities(count);
-
-      if (!response.success || !response.opportunities) {
-        this.logger.error(
-          `❌ Failed to get opportunities for ${platform}:`,
-          response.error
-        );
-        return;
-      }
-
-      for (const opportunity of response.opportunities) {
-        try {
-          // Generate video (80% organic, 20% affiliate logic here)
-          const isAffiliateVideo = Math.random() < 0.2; // 20% chance
-
-          if (isAffiliateVideo) {
-            this.logger.log(`💰 Generating affiliate video for ${platform}`);
-            await this.opportunitiesService.generateVideoFromOpportunity(
-              opportunity.id
-            );
-          } else {
-            this.logger.log(`🎯 Generating organic video for ${platform}`);
-            // Generate organic content (no affiliate links)
-            await this.generateOrganicVideo(opportunity.id);
-          }
-
-          // TODO: Add distribution logic here
-          this.logger.log(`✅ Video generated and posted to ${platform}`);
-        } catch (error) {
-          this.logger.error(
-            `❌ Failed to generate video for ${platform}:`,
-            error
-          );
-        }
-      }
-    } catch (error) {
-      this.logger.error(
-        `❌ Failed to generate and post to ${platform}:`,
-        error
-      );
-    }
+  // YouTube Non-Affiliate - 4 times a day
+  @Cron(SCHEDULES.youtube.nonAffiliate)
+  async postYouTubeOrganic() {
+    this.logger.log('🕖 YouTube organic posting scheduled');
+    await this.compositionService.generateAndPost('youtube', 1, false);
   }
 
-  private async generateOrganicVideo(opportunityId: string) {
-    // Generate organic content (facts, tips, etc.) without affiliate links
-    this.logger.log('🎯 Generating organic content...');
-    // TODO: Implement organic content generation
-    await this.opportunitiesService.generateVideoFromOpportunity(opportunityId);
+  // Telegram Affiliate - once a day at 6pm
+  @Cron(SCHEDULES.telegram.affiliate)
+  async postTelegramAffiliate() {
+    this.logger.log('🕕 Telegram affiliate posting scheduled');
+    await this.compositionService.generateAndPost('telegram', 1, true);
   }
 
-  // Manual trigger methods for testing
-  async triggerTikTokPost() {
-    await this.generateAndPost('tiktok', 1);
+  // Telegram Non-Affiliate - 4 times a day
+  @Cron(SCHEDULES.telegram.nonAffiliate)
+  async postTelegramOrganic() {
+    this.logger.log('🕖 Telegram organic posting scheduled');
+    await this.compositionService.generateAndPost('telegram', 1, false);
   }
 
-  async triggerInstagramPost() {
-    await this.generateAndPost('instagram', 1);
+  // Twitter Affiliate - once a day at 6pm
+  @Cron(SCHEDULES.twitter.affiliate)
+  async postTwitterAffiliate() {
+    this.logger.log('🕕 Twitter affiliate posting scheduled');
+    await this.compositionService.generateAndPost('twitter', 1, true);
   }
 
-  async triggerYouTubePost() {
-    await this.generateAndPost('youtube', 1);
-  }
-
-  async triggerTelegramPost() {
-    await this.generateAndPost('telegram', 1);
-  }
-
-  async triggerTwitterPost() {
-    await this.generateAndPost('twitter', 1);
+  // Twitter Non-Affiliate - 4 times a day
+  @Cron(SCHEDULES.twitter.nonAffiliate)
+  async postTwitterOrganic() {
+    this.logger.log('🕖 Twitter organic posting scheduled');
+    await this.compositionService.generateAndPost('twitter', 1, false);
   }
 
   // Get current schedule configuration
   getScheduleConfig() {
     return {
       tiktok: {
-        frequency: '3x daily',
-        times: ['9:00 AM', '2:00 PM', '7:00 PM'],
-        cron: '0 9,14,19 * * *',
+        affiliate: {
+          frequency: '1x daily',
+          times: ['6:00 PM'],
+          cron: SCHEDULES.tiktok.affiliate,
+        },
+        nonAffiliate: {
+          frequency: '4x daily',
+          times: ['7:00 AM', '12:00 PM', '5:00 PM', '9:00 PM'],
+          cron: SCHEDULES.tiktok.nonAffiliate,
+        },
       },
       instagram: {
-        frequency: '2x daily',
-        times: ['10:00 AM', '5:00 PM'],
-        cron: '0 10,17 * * *',
+        affiliate: {
+          frequency: '1x daily',
+          times: ['6:00 PM'],
+          cron: SCHEDULES.instagram.affiliate,
+        },
+        nonAffiliate: {
+          frequency: '4x daily',
+          times: ['7:00 AM', '12:00 PM', '5:00 PM', '9:00 PM'],
+          cron: SCHEDULES.instagram.nonAffiliate,
+        },
       },
       youtube: {
-        frequency: '1x daily',
-        times: ['3:00 PM'],
-        cron: '0 15 * * *',
+        affiliate: {
+          frequency: '1x daily',
+          times: ['6:00 PM'],
+          cron: SCHEDULES.youtube.affiliate,
+        },
+        nonAffiliate: {
+          frequency: '4x daily',
+          times: ['7:00 AM', '12:00 PM', '5:00 PM', '9:00 PM'],
+          cron: SCHEDULES.youtube.nonAffiliate,
+        },
       },
       telegram: {
-        frequency: '4x daily',
-        times: ['8:00 AM', '12:00 PM', '4:00 PM', '8:00 PM'],
-        cron: '0 8,12,16,20 * * *',
+        affiliate: {
+          frequency: '1x daily',
+          times: ['6:00 PM'],
+          cron: SCHEDULES.telegram.affiliate,
+        },
+        nonAffiliate: {
+          frequency: '4x daily',
+          times: ['7:00 AM', '12:00 PM', '5:00 PM', '9:00 PM'],
+          cron: SCHEDULES.telegram.nonAffiliate,
+        },
       },
       twitter: {
-        frequency: '3x daily',
-        times: ['11:00 AM', '3:00 PM', '6:00 PM'],
-        cron: '0 11,15,18 * * *',
+        affiliate: {
+          frequency: '1x daily',
+          times: ['6:00 PM'],
+          cron: SCHEDULES.twitter.affiliate,
+        },
+        nonAffiliate: {
+          frequency: '4x daily',
+          times: ['7:00 AM', '12:00 PM', '5:00 PM', '9:00 PM'],
+          cron: SCHEDULES.twitter.nonAffiliate,
+        },
       },
     };
   }

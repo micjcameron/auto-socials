@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DeepPartial, DeleteResult } from 'typeorm';
 import { Opportunity } from '../entities/opportunity.entity';
 
 @Injectable()
@@ -20,6 +20,12 @@ export class OpportunitiesRepository {
         'price',
         'category',
         'description',
+        'images',
+        'thumbnail',
+        'affiliateUrl',
+        'productUrl',
+        'paymentFrequency',
+        'lastUsedAt',
       ],
       order: { createdAt: 'DESC' },
       take: limit,
@@ -32,7 +38,35 @@ export class OpportunitiesRepository {
     });
   }
 
+  create(data: DeepPartial<Opportunity>): Opportunity {
+    return this.opportunityRepository.create(data);
+  }
+
+  save(opportunity: Opportunity): Promise<Opportunity> {
+    return this.opportunityRepository.save(opportunity);
+  }
+
+  delete(id: string): Promise<DeleteResult> {
+    return this.opportunityRepository.delete(id);
+  }
+
   async count(): Promise<number> {
     return this.opportunityRepository.count();
+  }
+
+  async getRandomAffiliateOpportunity(): Promise<Opportunity | null> {
+    return this.opportunityRepository
+      .createQueryBuilder('opportunity')
+      .where('opportunity.isAffiliate = true')
+      .orderBy('RANDOM()')
+      .getOne();
+  }
+
+  async getRandomOrganicOpportunity(): Promise<Opportunity | null> {
+    return this.opportunityRepository
+      .createQueryBuilder('opportunity')
+      .where('opportunity.isAffiliate = false')
+      .orderBy('RANDOM()')
+      .getOne();
   }
 }

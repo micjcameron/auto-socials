@@ -27,8 +27,9 @@
     "db:init": "./scripts/init-db.sh",
     "db:migrate": "npm run typeorm migration:run",
     "db:generate": "npm run typeorm migration:generate",
-    "db:create": "npm run typeorm schema:sync",
-    "db:seed": "ts-node src/utils/seeder.ts"
+    "db:create": "npm run typeorm -- schema:sync -d src/database/database.config.ts",
+    "db:seed": "ts-node src/utils/seeder.ts",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -53,6 +54,7 @@
     "puppeteer": "^24.15.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sharp": "^0.34.3",
     "typeorm": "^0.3.25",
     "winston": "^3.17.0"
   },

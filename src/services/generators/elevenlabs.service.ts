@@ -4,6 +4,8 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
+
 @Injectable()
 export class ElevenLabsService {
   private readonly logger = new Logger(ElevenLabsService.name);
@@ -14,15 +16,19 @@ export class ElevenLabsService {
     this.apiKey = this.configService.get<string>('ELEVENLABS_API_KEY');
   }
 
-  async generateAudio(
-    script: string,
-    voiceId: string = '21m00Tcm4TlvDq8ikWAM'
-  ): Promise<string> {
+  getVoiceId(): string {
+    // In the future, add logic to select voice by user, gender, etc.
+    return DEFAULT_VOICE_ID;
+  }
+
+  async generateAudio(script: string, voiceId?: string): Promise<string> {
     try {
       this.logger.log('Generating audio from script...');
 
+      const useVoiceId = voiceId || this.getVoiceId();
+
       const response = await axios.post(
-        `${this.baseUrl}/text-to-speech/${voiceId}`,
+        `${this.baseUrl}/text-to-speech/${useVoiceId}`,
         {
           text: script,
           model_id: 'eleven_monolingual_v1',
@@ -42,7 +48,7 @@ export class ElevenLabsService {
       );
 
       // Create output directory if it doesn't exist
-      const outputDir = path.join(process.cwd(), 'temp', 'audio');
+      const outputDir = path.join(process.cwd(), 'output', 'audio');
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
       }
@@ -87,16 +93,12 @@ export class ElevenLabsService {
       formData.append('name', name);
       formData.append('files', blob, 'audio.mp3');
 
-      const response = await axios.post(
-        `${this.baseUrl}/voices/add`,
-        formData,
-        {
-          headers: {
-            'xi-api-key': this.apiKey,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      const response = await axios.post(`${this.baseUrl}/voices/add`, formData, {
+        headers: {
+          'xi-api-key': this.apiKey,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       this.logger.log(`Voice cloned successfully: ${response.data.voice_id}`);
       return response.data.voice_id;
